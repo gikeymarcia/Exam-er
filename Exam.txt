@@ -1,0 +1,6 @@
+Q	c1	c2	c3	c4	shuffle
+The largest planet in our solar system is ________	Earth	Mars	*Jupiter	the moon	TRUE
+_______ is the lightest element on the periodic table.	Helium	Titanium	Unobtanium	*Hydrogren	TRUE
+Programming is _______	*fun	impossible to learn	a waste of time	Both B & C are true	FALSE
+Which of the following signed the declaration of indepedence?	Benjamin Franklin	John Adams	John Hancock	*All of the above signed the declaration of independence	ALL OF THE ABOVE
+This program is written in ____	Javascript	C++	Python	*None of the above are true	NONE OF THE ABOVE
