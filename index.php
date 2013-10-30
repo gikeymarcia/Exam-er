@@ -10,7 +10,7 @@
 	<body>
 			<?php
 			$Raw				=	getFromFile('Exam.txt');					// ## SET ##	tells the program which file to use for exam creation
-			$QuestionShuffling	=	FALSE;										// ## SET ##	if TRUE then questions will be shuffled
+			$QuestionShuffling	=	TRUE;										// ## SET ##	if TRUE then questions will be shuffled
 			$optionShuffling	=	TRUE;										// ## SET ##	if TRUE then questions options will be shuffled
 			$boldedAnswer		=	TRUE;										// ## SET ##	if TRUE then the correct answer will be bolded
 			$colorCodeShuffle	=	TRUE;										// ## SET ##	if TRUE then shuffle type will change the color of the question (TRUE = Black, FALSE = Red, All/None of the above = Blue)
