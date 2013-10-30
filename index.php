@@ -5,11 +5,11 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link href="css/global.css" rel="stylesheet" type="text/css" />
 		<link href='http://fonts.googleapis.com/css?family=Kreon' rel='stylesheet' type='text/css' />
-		<title>Test Questions</title>
+		<title>Exam-er</title>
 	</head>
 	<body>
 			<?php
-			$Raw				=	getFromFile("Exam.txt");					// ## SET ##	tells the program which file to use for exam creation
+			$Raw				=	getFromFile('Exam.txt');					// ## SET ##	tells the program which file to use for exam creation
 			$QuestionShuffling	=	FALSE;										// ## SET ##	if TRUE then questions will be shuffled
 			$optionShuffling	=	TRUE;										// ## SET ##	if TRUE then questions options will be shuffled
 			$boldedAnswer		=	TRUE;										// ## SET ##	if TRUE then the correct answer will be bolded
@@ -26,99 +26,93 @@
 			$Exam = array();						// create exam array
 			foreach ($Raw as $line) {
 				$Exam[] = array(
-								"Question" => $line['Q'],
-								"choices" => array( 0 => array("text" => hideTrue($line['c1']), "correct" => isCorrect($line['c1']) ),
-													1 => array("text" => hideTrue($line['c2']), "correct" => isCorrect($line['c2']) ),
-													2 => array("text" => hideTrue($line['c3']), "correct" => isCorrect($line['c3']) ),
-													3 => array("text" => hideTrue($line['c4']), "correct" => isCorrect($line['c4']) )	),
-								"shuffle" => $line['shuffle']);
+								'Question' => $line['Q'],
+								'choices' => array( 0 => array('text' => hideTrue($line['c1']), 'correct' => isCorrect($line['c1']) ),
+													1 => array('text' => hideTrue($line['c2']), 'correct' => isCorrect($line['c2']) ),
+													2 => array('text' => hideTrue($line['c3']), 'correct' => isCorrect($line['c3']) ),
+													3 => array('text' => hideTrue($line['c4']), 'correct' => isCorrect($line['c4']) )	),
+								'shuffle' => $line['shuffle']);
 			}
 			
+			// Readable($Exam,"this is what has been read");
 			
 			// the following code chunk shuffles answer choices for each question
 			$examLength = count($Exam);
-			for ($tmp = 0; $tmp < $examLength; $tmp++) {
-				// turns off option shuffling for all trials (value is set above)
-				if($optionShuffling == FALSE) {
+			for ($num = 0; $num < $examLength; $num++) {					// go through each exam question
+				
+				if($optionShuffling == FALSE) {								// turns off option shuffling for all trials (if value is set above)
 					continue;
 				}
-				// skip shuffling for header line or if shuffle for this question is == FALSE
-				elseif($Exam[$tmp]['shuffle'] == "FALSE") {
+				
+				elseif($Exam[$num]['shuffle'] == 'FALSE') {					// skip shuffling if shuffle for this question is == FALSE
 					continue;
 				}
-				elseif ($Exam[$tmp]['shuffle'] == "ALL OF THE ABOVE" OR $Exam[$tmp]['shuffle'] == "NONE OF THE ABOVE"){		// special all of the above shuffle that keeps last choice in last position while other options
-					$last = array_pop($Exam[$tmp]['choices']);				// hold last choice apart from other choices
-					shuffle($Exam[$tmp]['choices']);						// shuffle choices without last choice
-					// line I'm most worried about
-					$Exam[$tmp]['choices'][] = $last;						// place last choice back into the choices (in final position)
+				elseif ($Exam[$num]['shuffle'] == 'ALL OF THE ABOVE' OR $Exam[$num]['shuffle'] == 'NONE OF THE ABOVE'){		// special all of the above shuffle that keeps last choice in last position while other options
+					$last = array_pop($Exam[$num]['choices']);				// hold last choice apart from other choices
+					shuffle($Exam[$num]['choices']);						// shuffle choices without last choice
+					$Exam[$num]['choices'][] = $last;						// place last choice back into the choices (in final position)
 					$last = null;											// empty the temporary last choice holder
 					continue;												// jump back to the top of the current loop without finishing code in loop
 				}
-				shuffle($Exam[$tmp]['choices']);							// shuffle all choices for this question
+				shuffle($Exam[$num]['choices']);							// shuffle all choices for this question
 			}
 			
 			
 			// Output all of the test questions and choices in the format we want
-			echo "<ol>";
-			$color = "black";
+			$color = 'black';
+			echo '<ol>';
 			foreach ($Exam as $item) {										// Loop that repeats for each question
 				
-				if ($item['Question'] == "") {								// skip $Exam[0] (it's empty because question array position corresponds with question #)
+				if ($item['Question'] == '') {								// skip $Exam[0] (it's empty because question array position corresponds with question #)
 					continue;
 				}
 				
 				// color coding the question to denote what type of shuffling happened to it
 				if ($colorCodeShuffle == TRUE) {
 					switch ($item['shuffle']) {
-						case "TRUE":
-							$color = "black";
+						case 'TRUE':
+							$color = 'black';
 							break;
-						case "FALSE":
+						case 'FALSE':
 							$color = 'red';
 							break;
-						case "ALL OF THE ABOVE";
-							$color = "blue";
+						case 'ALL OF THE ABOVE';
+							$color = 'blue';
 							break;
-						case "NONE OF THE ABOVE";
-							$color = "blue";
+						case 'NONE OF THE ABOVE';
+							$color = 'blue';
 							break;
 					}	
 				}
-				
-				
-				
-				
-				echo '<li class="'.$color.'">';								// declares that the question is the next item on list
-				echo "<p>" . removeJunk($item['Question']) . "</p>";		// Outputs the question as it's own paragraph
-				echo "<ol type = \"A\">";									// makes sublist (where choices go)
-				foreach ($item['choices'] as $lure) {						// outputs each choice into sublist
-					// bolds the correct answer if value is set above
-					if($boldedAnswer == TRUE	&&	$lure['correct'] == "TRUE") {
-						echo "<li><b>" . removeJunk($lure['text']) . "</b></li>";
-						continue;
+								
+				echo '<li class="'.$color.'">';											// declares that the question is the next item on list
+					echo '<p>' . removeJunk($item['Question']) . '</p>';					// Outputs the question as it's own paragraph
+					echo '<ol type = "A">';													// makes sublist (where choices go)
+					foreach ($item['choices'] as $lure) {									// outputs each choice into sublist
+						if($boldedAnswer == TRUE	&&	$lure['correct'] == 'TRUE') {		// bolds the correct answer if value is set above
+							echo '<li><b>' . removeJunk($lure['text']) . '</b></li>';
+							continue;
+						}
+						echo '<li>' . removeJunk($lure['text']) . '</li>';					// Output answer choice
 					}
-					echo "<li>" . removeJunk($lure['text']) . "</li>";		// Output answer choice
-				}
-				echo "</ol>";												// ends answer choice sublist
-				echo "</li>";
-				echo "<br />";
+					echo '</ol>';															// ends answer choice sublist
+					echo '</li>';
+				echo '<br />';
 			}
-			echo "</ol>";													// ends ordered list
+			echo '</ol>';																// ends ordered list
 			
 			
 			// The following Code creates the answer key
-			echo "<br /> <br /> <h1>Answer Key</h1>";
-			echo "<ol>";
-			$truePos = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J");
+			echo '<h1>Answer Key</h1>';
+			echo '<ol>';
+			$truePos = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J');
 			$qCount = 1;
-			// setting value to 3 so the header column can be skipped easily (skips first iteration of foreach loop)
 			foreach ($Exam as $Q) {
 				$foundCorrect = 0;
-				for ($i = 0; $i < count($Q['choices']); $i++) {
-					if ($Q['choices'][$i]['correct'] == "TRUE") {
-						echo "<li>" . "\t".$truePos[$i] . "</li>";
+				for ($i = 0; $i < count($Q['choices']); $i++) {			// check all options for each question
+					if ($Q['choices'][$i]['correct'] == 'TRUE') {
+						echo '<li>' . $truePos[$i] . '</li>';		// output letter of a correct answer
 						$foundCorrect = $foundCorrect + 1;
-						//echo "GOT ONE!<br />";
 					}
 				}
 				// checks to make sure we found 1 and only 1 answer for each question of the exam
@@ -129,12 +123,32 @@
 				}
 				$qCount++;
 			}
-			echo "</ol>";
+			echo '</ol>';
+			
+			
+			/*	Exam-er
+				A program for randmoizing midterms and making answer keys
+				Copyright 2012-2013 Mikey Garcia
+				
+				
+				This program is free software: you can redistribute it and/or modify
+			    it under the terms of the GNU General Public License version 3 as published by
+			    the Free Software Foundation.
+			
+			    This program is distributed in the hope that it will be useful,
+			    but WITHOUT ANY WARRANTY; without even the implied warranty of
+			    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+			    GNU General Public License for more details.
+			
+			    You should have received a copy of the GNU General Public License
+			    along with this program.  If not, see <http://www.gnu.org/licenses/>
+			 */
 			?>
 	</body>
 </html>
 
-<?php		######## CUSTOM FUNCTIONS
+<?php
+	######## CUSTOM FUNCTIONS
 	//function that reads from tab delimited data file and populates each position in array with header(key)-cell(values)
 	function getFromFile($fileLoc) {
 		$file = fopen($fileLoc, 'r');					//open the file passed through the function arguement
@@ -191,8 +205,8 @@
 	}
 	
 	#### Debug function I use to display arrays in an easy to read fashion
-	function Readable($displayArray, $NameOfDisplayed = "unspecified"){
-		echo "<br />";	
+	function Readable($displayArray, $NameOfDisplayed = 'unspecified'){
+		echo '<br />';	
 		echo "Below is the array for <b>{$NameOfDisplayed}</b>";
 		echo '<pre>';
 		print_r($displayArray);
