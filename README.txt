@@ -1,4 +1,4 @@
-Isn't creating multiple versions of a midterm annoying? Not anymore. This program can randomize placement of questions, randomize options withing each question, and will create an answer key for this randomized exam. Want to make another version? Refresh your browser and version B is ready.
+Isn't creating multiple versions of a midterm annoying? Not anymore. This program can randomize placement of questions, randomize options within each question, and will create an answer key for this randomized exam. Want to make another version? Refresh your browser and version B is ready.
 
 Welcome to Exam-er
 
