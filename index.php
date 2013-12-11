@@ -9,7 +9,7 @@
 	</head>
 	<body>
 			<?php
-			$Raw				=	getFromFile('Exam.txt');					// ## SET ##	tells the program which file to use for exam creation
+			$Raw				=	getFromFile('Exam.txt', FALSE);				// ## SET ##	tells the program which file to use for exam creation
 			$QuestionShuffling	=	TRUE;										// ## SET ##	if TRUE then questions will be shuffled
 			$optionShuffling	=	TRUE;										// ## SET ##	if TRUE then questions options will be shuffled
 			$boldedAnswer		=	TRUE;										// ## SET ##	if TRUE then the correct answer will be bolded
@@ -27,10 +27,7 @@
 			foreach ($Raw as $line) {
 				$Exam[] = array(
 								'Question' => $line['Q'],
-								'choices' => array( 0 => array('text' => hideTrue($line['c1']), 'correct' => isCorrect($line['c1']) ),
-													1 => array('text' => hideTrue($line['c2']), 'correct' => isCorrect($line['c2']) ),
-													2 => array('text' => hideTrue($line['c3']), 'correct' => isCorrect($line['c3']) ),
-													3 => array('text' => hideTrue($line['c4']), 'correct' => isCorrect($line['c4']) )	),
+								'choices' => figureChoices($line),
 								'shuffle' => $line['shuffle']);
 			}
 			
@@ -40,11 +37,7 @@
 			$examLength = count($Exam);
 			for ($num = 0; $num < $examLength; $num++) {					// go through each exam question
 				
-				if($optionShuffling == FALSE) {								// turns off option shuffling for all trials (if value is set above)
-					continue;
-				}
-				
-				elseif($Exam[$num]['shuffle'] == 'FALSE') {					// skip shuffling if shuffle for this question is == FALSE
+				if($optionShuffling == FALSE OR $Exam[$num]['shuffle'] == 'FALSE') {	// turns off option shuffling when set above (all trials) or if set to FALSE for this question
 					continue;
 				}
 				elseif ($Exam[$num]['shuffle'] == 'ALL OF THE ABOVE' OR $Exam[$num]['shuffle'] == 'NONE OF THE ABOVE'){		// special all of the above shuffle that keeps last choice in last position while other options
@@ -105,14 +98,14 @@
 			// The following Code creates the answer key
 			echo '<h1>Answer Key</h1>';
 			echo '<ol>';
-			$truePos = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J');
+			$truePos = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M');
 			$qCount = 1;
 			foreach ($Exam as $Q) {
 				$foundCorrect = 0;
 				for ($i = 0; $i < count($Q['choices']); $i++) {			// check all options for each question
 					if ($Q['choices'][$i]['correct'] == 'TRUE') {
 						echo '<li>' . $truePos[$i] . '</li>';		// output letter of a correct answer
-						$foundCorrect = $foundCorrect + 1;
+						$foundCorrect++;
 					}
 				}
 				// checks to make sure we found 1 and only 1 answer for each question of the exam
@@ -150,15 +143,20 @@
 <?php
 	######## CUSTOM FUNCTIONS
 	//function that reads from tab delimited data file and populates each position in array with header(key)-cell(values)
-	function getFromFile($fileLoc) {
-		$file = fopen($fileLoc, 'r');					//open the file passed through the function arguement
-		$keys = fgetcsv($file, 0, "\t");				//pulling header data from file
-		$out = array();									//makes array that will be returned
-		while ($line = fgetcsv($file, 0, "\t")) {		//get data from each line in the .txt file
-			$tOut = array_combine($keys, $line);		//combine header file keys with current line of data
-			$out[] = $tOut;								//append header-key line to next row of output array	
+	function GetFromFile($fileLoc, $padding = TRUE) {
+		$file	= fopen($fileLoc, 'r');					// open the file passed through the function arguement
+		$keys	= fgetcsv($file, 0, "\t");				// pulling header data from top row of file
+		if ($padding == TRUE):
+			$out	= array(0 => 0, 1 => 0);			// leave positions 0 and 1 blank (so when I call $array[#] it will corespond to the row in excel)
+		endif;
+		while ($line = fgetcsv($file, 0, "\t")) {		// capture each remaining line from the file
+			$tOut	= array_combine($keys, $line);		// combine the line of data with the header
+			if(isBlankLine($tOut)) {					// do not include blank lines in output
+				continue;
+			}
+			$out[]	= $tOut;							// add this combined header<->line array to the ouput array
 		}
-		return $out;									//return the output array
+		return $out;
 	}
 	
 	function removeJunk ($string) {
@@ -184,6 +182,15 @@
 		return str_replace($search, $replace, $string);
 	}
 	
+	function isBlankLine($array) {								// if an array is empty, all positions == "", return TRUE
+		foreach ($array as $item) {
+			if($item <> "") {
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}
+
 	function isCorrect($choice) {
 		$choice = trim($choice);
 		if (substr($choice, 0, 1) == '*') {
@@ -202,6 +209,26 @@
 		else {
 			return $option;
 		}
+	}
+	
+	function figureChoices ($dataLine) {
+		$outputChoices = array ();
+		
+		$opChar = 'c';
+		$count  = 1;
+		$opCheck = $opChar.$count;					// i.e., 'c1'
+		while ( isset($dataLine[$opCheck]) ) {
+			if( $dataLine[$opCheck] == '') {
+				$count++;
+				$opCheck = $opChar.$count;
+				continue;
+			}
+			$outputChoices[] = array ( 'text' => hideTrue($dataLine[$opCheck]), 'correct' => isCorrect($dataLine[$opCheck]) );
+			$count++;
+			$opCheck = $opChar.$count;
+		}
+		return $outputChoices;
+		
 	}
 	
 	#### Debug function I use to display arrays in an easy to read fashion
